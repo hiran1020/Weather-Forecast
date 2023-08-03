@@ -40,6 +40,8 @@ export default function Details({route, navigation}) {
         return 'rainy-outline';
       case 'Snow':
         return 'snow-outline';
+      case 'Sunny':
+        return 'sunny-outline';
       default:
         return 'help-with-circle'; // Default icon
     }
