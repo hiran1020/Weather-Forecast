@@ -30,7 +30,20 @@ export default function Details({route, navigation}) {
   const kelvinToCelsius = temp => (temp - 273.15).toFixed(2);
 
   const metersToKilometers = visibility => (visibility / 1000).toFixed(2);
-
+  getWeatherIcon = weatherType => {
+    switch (weatherType) {
+      case 'Clear':
+        return 'partly-sunny';
+      case 'Clouds':
+        return 'cloudy-outline';
+      case 'Rain':
+        return 'rainy-outline';
+      case 'Snow':
+        return 'snow-outline';
+      default:
+        return 'help-with-circle'; // Default icon
+    }
+  };
   return (
     <ScrollView contentContainerStyle={styles.container}>
       <View>
@@ -61,6 +74,12 @@ export default function Details({route, navigation}) {
                   <Text style={styles.weatherDescription}>
                     {forecastData[0].weather[0].main}
                   </Text>
+                  <Icon
+                    name={getWeatherIcon(forecastData[0].weather[0].main)}
+                    size={64}
+                    color="skyblue"
+                    style={styles.weatherIcon}
+                  />
                 </View>
               )}
             </View>
@@ -80,9 +99,17 @@ export default function Details({route, navigation}) {
                       <Text style={styles.weatherInfo}>
                         Date and Time: {forecast.dt_txt}
                       </Text>
-                      <Text style={styles.weatherInfo}>
-                        Weather: {forecast.weather[0].main}
-                      </Text>
+                      <View style={styles.ForecastIcon}>
+                        <Text style={styles.weatherInfo}>
+                          Forecast: {forecast.weather[0].main}
+                        </Text>
+                        <Icon
+                          name={getWeatherIcon(forecastData[0].weather[0].main)}
+                          size={25}
+                          color="skyblue"
+                          style={styles.ForecastIcone}
+                        />
+                      </View>
                       <Text style={styles.weatherInfo}>
                         Temperature: {kelvinToCelsius(forecast.main.temp)}&deg;
                         C
@@ -162,6 +189,7 @@ const styles = StyleSheet.create({
     justifyContent: 'space-between',
     alignItems: 'center',
     height: deviceHeight - 100,
+    marginTop: 75,
   },
   cityName: {
     color: 'white',
@@ -199,5 +227,16 @@ const styles = StyleSheet.create({
     color: 'white',
     fontSize: 18,
     marginBottom: 10,
+  },
+  weatherIcon: {
+    marginTop: 10,
+    textAlign: 'center',
+  },
+  ForecastIcon: {
+    flexDirection: 'row',
+    alignItems: 'center',
+  },
+  ForecastIcone: {
+    padding: 10,
   },
 });
