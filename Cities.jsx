@@ -1,4 +1,3 @@
-
 const cities = [
   {
     country: 'Andorra',
@@ -128750,4 +128749,4 @@ const cities = [
     subcountry: 'Harare',
   },
 ];
-export default cities
+export default cities;
