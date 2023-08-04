@@ -15,6 +15,7 @@ import {deviceHeight, deviceWidth} from './Dimension';
 export default function Details({route, navigation}) {
   const {name} = route.params;
   const [forecastData, setForecastData] = useState([]);
+  const [cityData, setCityData] = useState('');
 
   useEffect(() => {
     fetch(
@@ -23,6 +24,7 @@ export default function Details({route, navigation}) {
       .then(res => res.json())
       .then(res => {
         setForecastData(res.list);
+        setCityData(res.city);
       })
       .catch(err => console.log(err));
   }, []);
@@ -46,6 +48,33 @@ export default function Details({route, navigation}) {
         return 'help-with-circle'; // Default icon
     }
   };
+
+  formatedTime = (timestamp, offset) => {
+    datetime = new Date(timestamp * 1000 - offset);
+
+    return datetime.toLocaleTimeString('en-US', {
+      hour: '2-digit',
+      minute: '2-digit',
+      // timeZone: 'UTC',
+    });
+  };
+  // const sunriseTimestamp = cityData.sunrise; // Replace with your actual sunrise timestamp
+  // const sunsetTimestamp = cityData.sunset;
+  // const offset = cityData.timezone;
+
+  // const sunriseDate = new Date(sunriseTimestamp * 1000 + offset);
+  // const sunsetDate = new Date(sunsetTimestamp * 1000 + offset);
+
+  // // Format the Date objects as time strings
+  // const sunriseTime = sunriseDate.toLocaleTimeString('en-US', {
+  //   hour: '2-digit',
+  //   minute: '2-digit',
+  // });
+  // const sunsetTime = sunsetDate.toLocaleTimeString('en-US', {
+  //   hour: '2-digit',
+  //   minute: '2-digit',
+  // });
+
   return (
     <ScrollView contentContainerStyle={styles.container}>
       <View>
@@ -91,7 +120,16 @@ export default function Details({route, navigation}) {
                 {kelvinToCelsius(forecastData[0].main.temp)}&deg; C
               </Text>
             )}
-
+            <View>
+              <View style={styles.cityItem}>
+                <Text style={styles.sectionTitle}>
+                  Sunrise: {formatedTime(cityData.sunrise, cityData.timezone)}
+                </Text>
+                <Text style={styles.sectionTitle}>
+                  Sunset: {formatedTime(cityData.sunset, cityData.timezone)}
+                </Text>
+              </View>
+            </View>
             <View>
               <Text style={styles.sectionTitle}>Weather Details</Text>
               <ScrollView>
@@ -106,7 +144,7 @@ export default function Details({route, navigation}) {
                           Forecast: {forecast.weather[0].main}
                         </Text>
                         <Icon
-                          name={getWeatherIcon(forecastData[0].weather[0].main)}
+                          name={getWeatherIcon(forecast.weather[0].main)}
                           size={25}
                           color="skyblue"
                           style={styles.ForecastIcone}
