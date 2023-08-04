@@ -2,6 +2,7 @@ import React, {useEffect, useState} from 'react';
 import {
   Image,
   ImageBackground,
+  Modal,
   ScrollView,
   StyleSheet,
   Text,
@@ -12,10 +13,26 @@ import Icon from 'react-native-vector-icons/Ionicons';
 import {API_KEY} from './Constants';
 import {deviceHeight, deviceWidth} from './Dimension';
 
+const ErrorModal = ({visible, message, onClose}) => {
+  return (
+    <Modal visible={visible} transparent animationType="fade">
+      <View style={styles.modalContainer}>
+        <View style={styles.modalContent}>
+          <Text style={styles.errorMessage}>{message}</Text>
+          <TouchableOpacity onPress={onClose} style={styles.closeButton}>
+            <Text style={styles.closeButtonText}>Close</Text>
+          </TouchableOpacity>
+        </View>
+      </View>
+    </Modal>
+  );
+};
+
 export default function Details({route, navigation}) {
   const {name} = route.params;
   const [forecastData, setForecastData] = useState([]);
   const [cityData, setCityData] = useState('');
+  const [error, setError] = useState(null);
 
   useEffect(() => {
     fetch(
@@ -23,11 +40,23 @@ export default function Details({route, navigation}) {
     )
       .then(res => res.json())
       .then(res => {
-        setForecastData(res.list);
-        setCityData(res.city);
+        if (res.cod === '200') {
+          setForecastData(res.list);
+          setCityData(res.city);
+          setError(null); // Clear any previous error when data is successfully fetched
+        } else {
+          setError('No such city.Make sure you entered the correct name ');
+        }
       })
-      .catch(err => console.log(err));
+      .catch(err => {
+        setError('Network error. Please try again later.');
+        console.log('Error:', err);
+      });
   }, []);
+  const onCloseErrorModal = () => {
+    setError(null); // Clear the error state
+    navigation.navigate('Home'); // Navigate back to the home screen
+  };
 
   const kelvinToCelsius = temp => (temp - 273.15).toFixed(2);
 
@@ -50,130 +79,139 @@ export default function Details({route, navigation}) {
   };
 
   formatedTime = (timestamp, offset) => {
-    datetime = new Date(timestamp * 1000 - offset);
+    // datetime = new Date(timestamp * 1000 - offset);
+    const datetime = new Date(timestamp * 1000 - offset * 1000);
 
-    return datetime.toLocaleTimeString('en-US', {
+    const options = {
       hour: '2-digit',
       minute: '2-digit',
-      // timeZone: 'UTC',
-    });
+      timeZoneName: 'short',
+    };
+
+    return new Intl.DateTimeFormat('en-US', options).format(datetime);
   };
-  // const sunriseTimestamp = cityData.sunrise; // Replace with your actual sunrise timestamp
-  // const sunsetTimestamp = cityData.sunset;
-  // const offset = cityData.timezone;
-
-  // const sunriseDate = new Date(sunriseTimestamp * 1000 + offset);
-  // const sunsetDate = new Date(sunsetTimestamp * 1000 + offset);
-
-  // // Format the Date objects as time strings
-  // const sunriseTime = sunriseDate.toLocaleTimeString('en-US', {
-  //   hour: '2-digit',
-  //   minute: '2-digit',
-  // });
-  // const sunsetTime = sunsetDate.toLocaleTimeString('en-US', {
-  //   hour: '2-digit',
-  //   minute: '2-digit',
-  // });
 
   return (
     <ScrollView contentContainerStyle={styles.container}>
-      <View>
-        {/* Background Image */}
-        <ImageBackground
-          source={require('../assets/images/image1.jpg')}
-          style={styles.backgroundImage}
-          imageStyle={styles.imageStyle}>
-          {/* Back button and user icon */}
-          <View style={styles.backButtonContainer}>
-            <View style={styles.vtwo}>
-              <TouchableOpacity onPress={() => navigation.navigate('Home')}>
-                <Icon name="arrow-back" style={styles.backIcon} />
-              </TouchableOpacity>
-              <Image
-                source={require('../assets/images/user.png')}
-                style={styles.user}
-              />
-            </View>
-          </View>
+      <ErrorModal
+        visible={!!error} // Show the modal only when there's an error
+        onClose={onCloseErrorModal} // Function to close the modal and navigate back to home
+      />
 
-          {/* Weather Details */}
-          <View style={styles.weatherDetailsContainer}>
-            <View>
-              <Text style={styles.cityName}>{name}</Text>
-              {forecastData.length > 0 && (
-                <View>
-                  <Text style={styles.weatherDescription}>
-                    {forecastData[0].weather[0].main}
-                  </Text>
-                  <Icon
-                    name={getWeatherIcon(forecastData[0].weather[0].main)}
-                    size={64}
-                    color="skyblue"
-                    style={styles.weatherIcon}
-                  />
-                </View>
-              )}
-            </View>
-
-            {forecastData.length > 0 && (
-              <Text style={styles.temperatureText}>
-                {kelvinToCelsius(forecastData[0].main.temp)}&deg; C
-              </Text>
-            )}
-            <View>
-              <View style={styles.cityItem}>
-                <Text style={styles.sectionTitle}>
-                  Sunrise: {formatedTime(cityData.sunrise, cityData.timezone)}
-                </Text>
-                <Text style={styles.sectionTitle}>
-                  Sunset: {formatedTime(cityData.sunset, cityData.timezone)}
-                </Text>
+      {error ? ( // Conditional rendering for error message
+        <View style={styles.errorContainer}>
+          <Text style={styles.errorText}>{error}</Text>
+        </View>
+      ) : (
+        <View>
+          {/* Background Image */}
+          <ImageBackground
+            source={require('../assets/images/image1.jpg')}
+            style={styles.backgroundImage}
+            imageStyle={styles.imageStyle}>
+            {/* Back button and user icon */}
+            <View style={styles.backButtonContainer}>
+              <View style={styles.vtwo}>
+                <TouchableOpacity onPress={() => navigation.navigate('Home')}>
+                  <Icon name="arrow-back" style={styles.backIcon} />
+                </TouchableOpacity>
+                <Image
+                  source={require('../assets/images/user.png')}
+                  style={styles.user}
+                />
               </View>
             </View>
-            <View>
-              <Text style={styles.sectionTitle}>Weather Details</Text>
-              <ScrollView>
-                <View style={styles.weatherInfoContainer}>
-                  {forecastData.map((forecast, index) => (
-                    <View key={index} style={styles.forecastItem}>
-                      <Text style={styles.weatherInfo}>
-                        Date and Time: {forecast.dt_txt}
-                      </Text>
-                      <View style={styles.ForecastIcon}>
-                        <Text style={styles.weatherInfo}>
-                          Forecast: {forecast.weather[0].main}
+
+            {/* Weather Details */}
+            <View style={styles.weatherDetailsContainer}>
+              <View>
+                <Text style={styles.cityName}>{name}</Text>
+                {forecastData.length > 0 && (
+                  <View>
+                    <Text style={styles.weatherDescription}>
+                      {forecastData[0].weather[0].main}
+                    </Text>
+                    <Icon
+                      name={getWeatherIcon(forecastData[0].weather[0].main)}
+                      size={64}
+                      color="skyblue"
+                      style={styles.weatherIcon}
+                    />
+                  </View>
+                )}
+              </View>
+
+              {forecastData.length > 0 && (
+                <Text style={styles.temperatureText}>
+                  {kelvinToCelsius(forecastData[0].main.temp)}&deg; C
+                </Text>
+              )}
+              <View>
+                <View style={styles.cityItem}>
+                  {cityData && (
+                    <View style={styles.cityItem}>
+                      {cityData.sunrise && (
+                        <Text style={styles.sectionTitle}>
+                          Sunrise:{' '}
+                          {formatedTime(cityData.sunrise, cityData.timezone)}
                         </Text>
-                        <Icon
-                          name={getWeatherIcon(forecast.weather[0].main)}
-                          size={25}
-                          color="skyblue"
-                          style={styles.ForecastIcone}
-                        />
-                      </View>
-                      <Text style={styles.weatherInfo}>
-                        Temperature: {kelvinToCelsius(forecast.main.temp)}&deg;
-                        C
-                      </Text>
-                      <Text style={styles.weatherInfo}>
-                        Wind: {forecast.wind.speed} m/s
-                      </Text>
-                      <Text style={styles.weatherInfo}>
-                        Pressure: {forecast.main.pressure} hPa
-                      </Text>
-                      <Text style={styles.weatherInfo}>
-                        Humidity: {forecast.main.humidity}%
-                      </Text>
-                      <Text style={styles.weatherInfo}>
-                        Visibility: {metersToKilometers(forecast.visibility)} km
-                      </Text>
+                      )}
+                      {cityData.sunset && (
+                        <Text style={styles.sectionTitle}>
+                          Sunset:{' '}
+                          {formatedTime(cityData.sunset, cityData.timezone)}
+                        </Text>
+                      )}
                     </View>
-                  ))}
+                  )}
                 </View>
-              </ScrollView>
+              </View>
+              <View>
+                <Text style={styles.sectionTitle}>Weather Details</Text>
+                <ScrollView>
+                  <View style={styles.weatherInfoContainer}>
+                    {forecastData.map((forecast, index) => (
+                      <View key={index} style={styles.forecastItem}>
+                        <Text style={styles.weatherInfo}>
+                          Date and Time: {forecast.dt_txt}
+                        </Text>
+                        <View style={styles.ForecastIcon}>
+                          <Text style={styles.weatherInfo}>
+                            Forecast: {forecast.weather[0].main}
+                          </Text>
+                          <Icon
+                            name={getWeatherIcon(forecast.weather[0].main)}
+                            size={25}
+                            color="skyblue"
+                            style={styles.ForecastIcone}
+                          />
+                        </View>
+                        <Text style={styles.weatherInfo}>
+                          Temperature: {kelvinToCelsius(forecast.main.temp)}
+                          &deg; C
+                        </Text>
+                        <Text style={styles.weatherInfo}>
+                          Wind: {forecast.wind.speed} m/s
+                        </Text>
+                        <Text style={styles.weatherInfo}>
+                          Pressure: {forecast.main.pressure} hPa
+                        </Text>
+                        <Text style={styles.weatherInfo}>
+                          Humidity: {forecast.main.humidity}%
+                        </Text>
+                        <Text style={styles.weatherInfo}>
+                          Visibility: {metersToKilometers(forecast.visibility)}{' '}
+                          km
+                        </Text>
+                      </View>
+                    ))}
+                  </View>
+                </ScrollView>
+              </View>
             </View>
-          </View>
-        </ImageBackground>
-      </View>
+          </ImageBackground>
+        </View>
+      )}
     </ScrollView>
   );
 }
@@ -278,5 +316,15 @@ const styles = StyleSheet.create({
   },
   ForecastIcone: {
     padding: 10,
+  },
+  errorContainer: {
+    flex: 1,
+    alignItems: 'center',
+    justifyContent: 'center',
+  },
+  errorText: {
+    fontSize: 22,
+    fontWeight: 'bold',
+    color: 'red',
   },
 });
