@@ -51,6 +51,13 @@ const Home = ({navigation}) => {
   const handleOutsidePress = () => {
     Keyboard.dismiss();
   };
+  const handleUserImageClick = () => {
+    // Reload the page or reset the search input field
+    setCity('');
+    setFilteredCities([]);
+    setFilteredCitiess([]);
+    Keyboard.dismiss();
+  };
 
   return (
     <TouchableWithoutFeedback onPress={handleOutsidePress}>
@@ -63,10 +70,12 @@ const Home = ({navigation}) => {
         <View style={styles.vone}>
           <View style={styles.vtwo}>
             <Icon name="menu" size={46} color="white" />
-            <Image
-              source={require('../assets/images/user.png')}
-              style={styles.user}
-            />
+            <TouchableOpacity onPress={handleUserImageClick}>
+              <Image
+                source={require('../assets/images/user.png')}
+                style={styles.user}
+              />
+            </TouchableOpacity>
           </View>
           <View style={styles.udetails}>
             <Text style={styles.uname}>Hello Hiran Basnet</Text>
