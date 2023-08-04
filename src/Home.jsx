@@ -218,7 +218,7 @@ const styles = StyleSheet.create({
     color: 'white',
     fontSize: 22,
     paddingHorizontal: 10,
-    marginTop: 150,
+    marginTop: 120,
   },
   locationContainer: {
     marginTop: 20,
