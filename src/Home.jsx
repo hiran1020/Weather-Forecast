@@ -11,9 +11,11 @@ import {
   TouchableWithoutFeedback,
   View,
 } from 'react-native';
+import Geolocation from 'react-native-geolocation-service';
 import Icon from 'react-native-vector-icons/Ionicons';
 import cities from '../Cities';
 import Cards from './Cards';
+import {API_KEY} from './Constants';
 import {deviceHeight, deviceWidth} from './Dimension';
 
 const Home = ({navigation}) => {
@@ -24,6 +26,37 @@ const Home = ({navigation}) => {
     if (city.trim() !== '') {
       navigation.navigate('Details', {name: city});
     }
+  };
+
+  //Get Weather By Current Location
+  const getWeatherByCurrentLocation = () => {
+    Geolocation.getCurrentPosition(
+      position => {
+        const {latitude, longitude} = position.coords;
+        // Now, you have the latitude and longitude. You can use this to call the weather API with these coordinates.
+        // You can use any weather API that supports geolocation-based weather data retrieval.
+        // For example:
+        fetch(
+          `https://api.openweathermap.org/data/2.5/weather?lat=${latitude}&lon=${longitude}&appid=${API_KEY}`,
+        )
+          .then(response => response.json())
+          .then(data => {
+            // Handle the weather data received from the API
+            // You can navigate to the details screen and pass the weather data as params.
+            navigation.navigate('Details', {
+              name: data.name,
+              weatherData: data,
+            });
+          })
+          .catch(error => {
+            console.error('Error fetching weather data:', error);
+          });
+      },
+      error => {
+        console.error('Error getting current location:', error);
+      },
+      {enableHighAccuracy: true, timeout: 20000, maximumAge: 1000},
+    );
   };
 
   const handleCityChange = val => {
@@ -92,6 +125,16 @@ const Home = ({navigation}) => {
                 <Icon name="search" size={22} color={'white'} />
               </TouchableOpacity>
             </View>
+            <View style={styles.locationContainer}>
+              <TouchableOpacity
+                onPress={getWeatherByCurrentLocation}
+                style={styles.locationButton}>
+                <Text style={styles.locationButtonText}>
+                  Get Weather for Current Location
+                </Text>
+              </TouchableOpacity>
+            </View>
+
             {/* Render the dropdown */}
 
             {filteredCities.length > 0 && (
@@ -177,7 +220,20 @@ const styles = StyleSheet.create({
     paddingHorizontal: 10,
     marginTop: 150,
   },
-
+  locationContainer: {
+    marginTop: 20,
+    alignItems: 'center',
+  },
+  locationButton: {
+    backgroundColor: 'white',
+    borderRadius: 10,
+    paddingHorizontal: 16,
+    paddingVertical: 10,
+  },
+  locationButtonText: {
+    color: 'black',
+    fontSize: 16,
+  },
   dropdownContainer: {
     position: 'absolute',
     top: 155,

@@ -20,5 +20,12 @@
 	<string>????</string>
 	<key>CFBundleVersion</key>
 	<string>1</string>
+	<key>NSLocationWhenInUseUsageDescription</key>
+	<string>Need location access for weather information</string>
+	<key>NSLocationAlwaysAndWhenInUseUsageDescription</key>
+	<string>Need location access for weather information</string>
+	<key>NSLocationAlwaysUsageDescription</key>
+	<string>Need location access for weather information</string>
+
 </dict>
 </plist>
