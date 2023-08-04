@@ -9,7 +9,7 @@ export default function Cards({name, image, navigation}) {
       onPress={() => navigation.navigate('Details', {name})}>
       <ImageBackground
         source={image}
-        style={{height: deviceHeight / 5, width: deviceWidth / 2 - 50}}
+        style={{height: deviceHeight / 3, width: deviceWidth / 2 - 30}}
         imageStyle={{borderRadius: 16}}
       />
       <View style={{position: 'absolute', height: '100%', width: '100%'}}>
@@ -20,7 +20,7 @@ export default function Cards({name, image, navigation}) {
             height: '100%',
             textAlign: 'center',
             textAlignVertical: 'center',
-            color: 'black',
+            color: 'white',
           }}>
           {name}
         </Text>
