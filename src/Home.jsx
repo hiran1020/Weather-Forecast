@@ -20,7 +20,7 @@ const Home = props => {
   return (
     <View>
       <ImageBackground
-        source={require('../assets/images/image2.jpg')}
+        source={require('../assets/images/image3.jpg')}
         style={{height: deviceHeight, width: deviceWidth}}
         imageStyle={{opacity: 0.6, backgroundColor: 'black'}}
       />
@@ -58,7 +58,7 @@ const Home = props => {
             renderItem={({item}) => (
               <Cards
                 name={item.name}
-                image={require('../assets/images/image5.jpg')}
+                image={require('../assets/images/image1.jpg')}
                 navigation={props.navigation}
               />
             )}

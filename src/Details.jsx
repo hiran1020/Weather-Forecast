@@ -1,5 +1,6 @@
 import React, {useEffect, useState} from 'react';
 import {
+  ActivityIndicator,
   Image,
   ImageBackground,
   Modal,
@@ -61,6 +62,7 @@ export default function Details({route, navigation}) {
   const kelvinToCelsius = temp => (temp - 273.15).toFixed(2);
 
   const metersToKilometers = visibility => (visibility / 1000).toFixed(2);
+
   getWeatherIcon = weatherType => {
     switch (weatherType) {
       case 'Clear':
@@ -90,6 +92,22 @@ export default function Details({route, navigation}) {
 
     return new Intl.DateTimeFormat('en-US', options).format(datetime);
   };
+  const getBackgroundImage = forecastType => {
+    switch (forecastType) {
+      case 'Clear':
+        return require('../assets/images/clear.jpg');
+      case 'Clouds':
+        return require('../assets/images/cloudy.jpg');
+      case 'Rain':
+        return require('../assets/images/rainy.jpg');
+      case 'Snow':
+        return require('../assets/images/snowy.jpg');
+      case 'Sunny':
+        return require('../assets/images/sunny.jpg');
+      default:
+        return require('../assets/images/default.jpg'); // Default background image
+    }
+  };
 
   return (
     <ScrollView contentContainerStyle={styles.container}>
@@ -102,11 +120,12 @@ export default function Details({route, navigation}) {
         <View style={styles.errorContainer}>
           <Text style={styles.errorText}>{error}</Text>
         </View>
-      ) : (
+      ) : forecastData.length > 0 ? (
         <View>
           {/* Background Image */}
           <ImageBackground
-            source={require('../assets/images/image1.jpg')}
+            source={getBackgroundImage(forecastData[0].weather[0].main)}
+            // Get the appropriate background image based on the weather type
             style={styles.backgroundImage}
             imageStyle={styles.imageStyle}>
             {/* Back button and user icon */}
@@ -168,7 +187,7 @@ export default function Details({route, navigation}) {
               </View>
               <View>
                 <Text style={styles.sectionTitle}>Weather Details</Text>
-                <ScrollView>
+                {/* <ScrollView>
                   <View style={styles.weatherInfoContainer}>
                     {forecastData.map((forecast, index) => (
                       <View key={index} style={styles.forecastItem}>
@@ -206,10 +225,56 @@ export default function Details({route, navigation}) {
                       </View>
                     ))}
                   </View>
-                </ScrollView>
+                </ScrollView> */}
+                <View style={styles.weatherInfoSlides}>
+                  <ScrollView
+                    horizontal
+                    showsHorizontalScrollIndicator={false}
+                    pagingEnabled>
+                    {forecastData.map((forecast, index) => (
+                      <View key={index} style={styles.weatherInfoSlide}>
+                        <Text style={styles.weatherInfo}>
+                          Date and Time: {forecast.dt_txt}
+                        </Text>
+                        <View style={styles.ForecastIcon}>
+                          <Text style={styles.weatherInfo}>
+                            Forecast: {forecast.weather[0].main}
+                          </Text>
+                          <Icon
+                            name={getWeatherIcon(forecast.weather[0].main)}
+                            size={25}
+                            color="skyblue"
+                            style={styles.ForecastIcone}
+                          />
+                        </View>
+                        <Text style={styles.weatherInfo}>
+                          Temperature: {kelvinToCelsius(forecast.main.temp)}
+                          &deg; C
+                        </Text>
+                        <Text style={styles.weatherInfo}>
+                          Wind: {forecast.wind.speed} m/s
+                        </Text>
+                        <Text style={styles.weatherInfo}>
+                          Pressure: {forecast.main.pressure} hPa
+                        </Text>
+                        <Text style={styles.weatherInfo}>
+                          Humidity: {forecast.main.humidity}%
+                        </Text>
+                        <Text style={styles.weatherInfo}>
+                          Visibility: {metersToKilometers(forecast.visibility)}{' '}
+                          km
+                        </Text>
+                      </View>
+                    ))}
+                  </ScrollView>
+                </View>
               </View>
             </View>
           </ImageBackground>
+        </View>
+      ) : (
+        <View style={styles.loadingContainer}>
+          <ActivityIndicator size="large" color="blue" />
         </View>
       )}
     </ScrollView>
@@ -268,6 +333,18 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     height: deviceHeight - 100,
     marginTop: 75,
+  },
+  weatherInfoSlides: {
+    height: deviceHeight * 0.6, // Adjust this value according to your design
+    marginTop: 20,
+    flexDirection: 'row',
+    paddingHorizontal: 10,
+  },
+  weatherInfoSlide: {
+    width: deviceWidth,
+    alignItems: 'center',
+    padding: 10,
+    flex: 1,
   },
   cityName: {
     color: 'white',
