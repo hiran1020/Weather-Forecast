@@ -227,10 +227,7 @@ export default function Details({route, navigation}) {
                   </View>
                 </ScrollView> */}
                 <View style={styles.weatherInfoSlides}>
-                  <ScrollView
-                    horizontal
-                    showsHorizontalScrollIndicator={false}
-                    pagingEnabled>
+                  <ScrollView horizontal showsHorizontalScrollIndicator={false}>
                     {forecastData.map((forecast, index) => (
                       <View key={index} style={styles.weatherInfoSlide}>
                         <Text style={styles.weatherInfo}>
@@ -335,16 +332,18 @@ const styles = StyleSheet.create({
     marginTop: 75,
   },
   weatherInfoSlides: {
-    height: deviceHeight * 0.6, // Adjust this value according to your design
-    marginTop: 20,
+    height: deviceHeight * 0.4, // Adjust this value according to your design
     flexDirection: 'row',
     paddingHorizontal: 10,
   },
   weatherInfoSlide: {
-    width: deviceWidth,
+    width: deviceWidth * 0.9,
     alignItems: 'center',
-    padding: 10,
+    justifyContent: 'center',
+    marginHorizontal: 5,
     flex: 1,
+    borderColor: 'gray',
+    borderWidth: 2,
   },
   cityName: {
     color: 'white',
@@ -369,6 +368,7 @@ const styles = StyleSheet.create({
     fontSize: 22,
     marginBottom: 16,
     fontWeight: 'bold',
+    paddingLeft: 10,
   },
   weatherInfoContainer: {
     width: deviceWidth - 60,
