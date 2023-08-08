@@ -17,6 +17,7 @@ import cities from '../Cities';
 import Cards from './Cards';
 import {API_KEY} from './Constants';
 import {deviceHeight, deviceWidth} from './Dimension';
+import History from './History';
 
 const Home = ({navigation}) => {
   const [city, setCity] = useState('');
@@ -26,6 +27,9 @@ const Home = ({navigation}) => {
     if (city.trim() !== '') {
       navigation.navigate('Details', {name: city});
     }
+  };
+  const handlemenuImageClick = () => {
+    navigation.navigate(History);
   };
 
   //Get Weather By Current Location
@@ -102,7 +106,12 @@ const Home = ({navigation}) => {
         />
         <View style={styles.vone}>
           <View style={styles.vtwo}>
-            <Icon name="menu" size={46} color="white" />
+            <Icon
+              name="menu"
+              onPress={handlemenuImageClick}
+              size={46}
+              color="white"
+            />
             <TouchableOpacity onPress={handleUserImageClick}>
               <Image
                 source={require('../assets/images/user.png')}
@@ -218,7 +227,7 @@ const styles = StyleSheet.create({
     color: 'white',
     fontSize: 22,
     paddingHorizontal: 10,
-    marginTop: 120,
+    marginTop: 90,
   },
   locationContainer: {
     marginTop: 20,
